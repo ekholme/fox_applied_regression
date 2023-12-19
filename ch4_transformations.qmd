@@ -1,0 +1,125 @@
+---
+title: "Ch 4 - Transformations"
+jupyter: julia-1.9
+---
+
+"Traditional" statistical models often make strong assumptions about the structure of the data, and so we sometimes need to transform data to meet these assumptions.
+
+## Powers and Roots
+
+Powers and roots are common transformations.
+
+$X \rightarrow X^p$
+
+If p is negative, then the transform is an inverse power
+
+$X^{-2} = 1/X^2$
+
+Fractions are roots
+
+$X^{1/2} = \sqrt{X}$
+
+etc.
+
+### Box-Cox
+
+The Box-Cox family of power transformations is a special, more general, transformation
+
+$X \rightarrow X^{(p)} \equiv (X^p - 1) / p $
+
+### Considerations
+
+Power transformations make sense only when values are all positive. Some transforms (e.g. log, square root) don't work on negative data. One workaround is to add a constant to everything before power transforming.
+
+Also, power transformations only make sense when the ratio of the largest values to the smallest values is sufficiently large. If the ratio is close to 1, then the power transforms are essentially linear and basically don't do anything. One trick here is to subtract a constant to change the ratio
+
+So if we look at the difference between log10 of 2011 through 2015 below compared to x - 2010 (e.g. 2011 - 2010, etc), we can see how these value change by subtracting a constant.
+
+**Raw Version**
+
+```{julia}
+yrs = 2011:2015
+
+log10.(yrs)
+```
+
+**Subtract Consant**
+
+```{julia}
+yrs_scaled = yrs .- 2010
+
+log10.(yrs_scaled)
+```
+
+## Transforming Skewness
+
+It's worthwhile to transform skewed predictors. One reason is that models such as OLS use means, and means are not good summaries of skewed distributions
+
+Generally, log transforms are good for transforming right-skewed distributions and power transforms are good for transforming left-skewed distributions.
+
+We usually want to prefer interpretable transformations over less-interpretable ones, assuming they perform equally well on the data.
+
+Also! Since scales in social sciences don't really have a meaning, there's no reason to prefer an untransformed version of them.
+
+## Transforming Nonlinearity
+
+Suppose we have the following data
+
+```{julia}
+using Plots
+```
+
+```{julia}
+x = 1:5
+
+y = 0.2 .* x .^ 2
+
+scatter(x, y)
+plot!(x, y)
+
+```
+
+This clearly isn't linear, but we can make it linear by substituting x' = x^2 (by taking the square root of x^2)
+
+```{julia}
+y′ = 0.2 .* sqrt.(x .^ 2)
+
+scatter(x, y′)
+```
+
+Note that we also could have transformed y.
+
+As a rule of thumb, if the "bulge" in a nonlinear line graph points down/right, we can try transforming the X variable down the ladder of powers (e.g. by taking the square root) or the y variable up the ladder of powers. Inversely, if the "bulge" points up/left, we can try transforming the X variable up the ladder of powers.
+
+Sometimes we might need to transform both X and y variables before modeling.
+
+## Transforming Proportions
+
+Power transformations usually don't work for proportions, which are often bounded by 0 and 1
+
+The logit transformation is common for proportions
+
+```{julia}
+function my_logit(x)
+    log(x / (1 - x))
+end
+
+x = 0.01:0.02:0.99
+```
+
+```{julia}
+scatter(eachindex(x), x)
+```
+
+```{julia}
+scatter!(eachindex(x), my_logit.(x))
+```
+
+This transformation can help normalize proportion data.
+
+Since the logit transformation can't be applied to values of exactly 0 or 1, so we need to clamp those proportions before transformation.
+
+## Other Notes
+
+- Power transformations preserve the order of data only when all values are positive!
+- log(X) tends to correct negative skew; squaring tends to correct positive skew

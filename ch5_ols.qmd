@@ -1,0 +1,100 @@
+---
+title: "Ch 5 - Linear Least-Squares Regression"
+jupyter: julia-1.9
+---
+
+Linear regression is basically the heart of applied stats, and there are lots of extensions/generalizations of it (glms, weighted regressions, GAMs, etc).
+
+The general form of a simple linear equation is:
+
+$Y = A + BX$
+
+We generally estimate linear regression by minimizing the squares of residuals rather than the absolute value of residuals because squares are "more mathematically tractable."
+
+To estimate a simple linear regression, we can use the following equations:
+
+$A = \bar{Y} - B \bar{X}$
+$B = \frac{\Sigma(X_i - \bar{X})(Y_i - \bar{Y})}{\Sigma(X_i - \bar{X})^2}$
+
+and we can then solve this system of equations
+
+```{julia}
+using RDatasets
+using DataFrames
+using Plots
+using Statistics
+
+iris = dataset("datasets", "iris")
+
+```
+
+```{julia}
+
+function estimate_beta(x, y)
+    μ_x = mean(x)
+    μ_y = mean(y)
+
+    xy = sum((x .- μ_x) .* (y .- μ_y))
+    xs = sum((x .- μ_x) .^ 2)
+
+    b = xy / xs
+
+    return b
+end
+
+beta = estimate_beta(iris.:SepalLength, iris.:PetalLength)
+alpha = mean(iris.:PetalLength) - beta * mean(iris.:SepalLength)
+
+xr = collect(minimum(iris.:SepalLength):0.1:maximum(iris.:SepalLength))
+
+ŷ = alpha .+ beta .* xr
+
+scatter(xr, ŷ)
+```
+
+and we can check our work with Julia's built-in linear solver.
+
+```{julia}
+ests = hcat(ones(nrow(iris)), iris.:SepalLength) \ iris.:PetalLength
+
+ests ≈ [alpha, beta]
+```
+
+## Standard Error of the Residuals
+
+The standard error of the residuals is
+
+$S_E = \sqrt{\frac{\Sigma E_i ^2}{n - 2}}$
+
+This is measured in the units of the response variable, so it should be easy to interpret (assuming the units of the response variable are meaningful). Fox suggests that social scientists don't usually pay enough attention to this metric as an index of fit.
+
+## Simple Correlation
+
+The formula for a correlation is:
+
+$r = \frac{S_{xy}}{S_x S_y} = \frac{\Sigma(X_i - \bar{X})(Y_i - \bar{Y}))}{\sqrt{\Sigma(X_i - \bar{X})^2 \Sigma(Y_i - \bar{Y})^2}}$
+
+Recall that *r* is unitless, whereas $\beta$ in a non-standardized regression is in the units of Y and X.
+
+It's also worthwhile to remember that *r* is the square-root of $R^2$ in a simple regression, and the formula for $R^2$ is:
+
+$R^2 = \frac{\Sigma(\hat{Y}_i - \bar{Y})^2}{\Sigma(Y_i - \bar{Y})^2}$
+
+## Multiple Regression
+
+Recall that the slope coefficients in multiple regression are partial coefficients that describe the marginal relationship between $x_k$ and $y$.
+
+If variables in a linear regression are perfectly colinear (or when 1 or more variables is invariant), our regression may not have a unique solution.
+
+In a multiple regression, we can get the standard error of the residuals via:
+
+$$S_E = \sqrt{\frac{\Sigma E_i ^2}{n - k - 1}}
+$$ 
+
+where $k$ is the number of predictors
+
+Least-squares residuals will be uncorrelated with $\hat{Y}$ as well as with $\bf{X}$.
+
+# RESUME AT STANDARDIZED REGRESSION COEFFICIENTS
+
+

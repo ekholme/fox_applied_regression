@@ -1,0 +1,4 @@
+# Preface {.unnumbered}
+
+This book contains notes on John Fox's Applied Regression Analysis book
+

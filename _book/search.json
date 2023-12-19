@@ -1,0 +1,44 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Applied Regression Analysis Notes",
+    "section": "",
+    "text": "Preface\nThis book contains notes on John Fox’s Applied Regression Analysis book"
+  },
+  {
+    "objectID": "ch4_transformations.html#powers-and-roots",
+    "href": "ch4_transformations.html#powers-and-roots",
+    "title": "1  Ch 4 - Transformations",
+    "section": "1.1 Powers and Roots",
+    "text": "1.1 Powers and Roots\nPowers and roots are common transformations.\n\\(X \\rightarrow X^p\\)\nIf p is negative, then the transform is an inverse power\n\\(X^{-2} = 1/X^2\\)\nFractions are roots\n\\(X^{1/2} = \\sqrt{X}\\)\netc.\n\n1.1.1 Box-Cox\nThe Box-Cox family of power transformations is a special, more general, transformation\n$X X^{(p)} (X^p - 1) / p $\n\n\n1.1.2 Considerations\nPower transformations make sense only when values are all positive. Some transforms (e.g. log, square root) don’t work on negative data. One workaround is to add a constant to everything before power transforming.\nAlso, power transformations only make sense when the ratio of the largest values to the smallest values is sufficiently large. If the ratio is close to 1, then the power transforms are essentially linear and basically don’t do anything. One trick here is to subtract a constant to change the ratio\nSo if we look at the difference between log10 of 2011 through 2015 below compared to x - 2010 (e.g. 2011 - 2010, etc), we can see how these value change by subtracting a constant.\nRaw Version\n\nyrs = 2011:2015\n\nlog10.(yrs)\n\n5-element Vector{Float64}:\n 3.303412070596742\n 3.30362797638389\n 3.3038437748886547\n 3.3040594662175993\n 3.3042750504771283\n\n\nSubtract Consant\n\nyrs_scaled = yrs .- 2010\n\nlog10.(yrs_scaled)\n\n5-element Vector{Float64}:\n 0.0\n 0.3010299956639812\n 0.47712125471966244\n 0.6020599913279624\n 0.6989700043360189"
+  },
+  {
+    "objectID": "ch4_transformations.html#transforming-skewness",
+    "href": "ch4_transformations.html#transforming-skewness",
+    "title": "1  Ch 4 - Transformations",
+    "section": "1.2 Transforming Skewness",
+    "text": "1.2 Transforming Skewness\nIt’s worthwhile to transform skewed predictors. One reason is that models such as OLS use means, and means are not good summaries of skewed distributions\nGenerally, log transforms are good for transforming right-skewed distributions and power transforms are good for transforming left-skewed distributions.\nWe usually want to prefer interpretable transformations over less-interpretable ones, assuming they perform equally well on the data.\nAlso! Since scales in social sciences don’t really have a meaning, there’s no reason to prefer an untransformed version of them."
+  },
+  {
+    "objectID": "ch4_transformations.html#transforming-nonlinearity",
+    "href": "ch4_transformations.html#transforming-nonlinearity",
+    "title": "1  Ch 4 - Transformations",
+    "section": "1.3 Transforming Nonlinearity",
+    "text": "1.3 Transforming Nonlinearity\nSuppose we have the following data\n\nusing Plots\n\n\nx = 1:5\n\ny = 0.2 .* x .^ 2\n\nscatter(x, y)\nplot!(x, y)\n\n\n\n\n  \n    \n  \n\n\n\n  \n    \n  \n\n\n\n  \n    \n  \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThis clearly isn’t linear, but we can make it linear by substituting x’ = x^2 (by taking the square root of x^2)\n\ny′ = 0.2 .* sqrt.(x .^ 2)\n\nscatter(x, y′)\n\n\n\n\n  \n    \n  \n\n\n\n  \n    \n  \n\n\n\n  \n    \n  \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNote that we also could have transformed y.\nAs a rule of thumb, if the “bulge” in a nonlinear line graph points down/right, we can try transforming the X variable down the ladder of powers (e.g. by taking the square root) or the y variable up the ladder of powers. Inversely, if the “bulge” points up/left, we can try transforming the X variable up the ladder of powers.\nSometimes we might need to transform both X and y variables before modeling."
+  },
+  {
+    "objectID": "ch4_transformations.html#transforming-proportions",
+    "href": "ch4_transformations.html#transforming-proportions",
+    "title": "1  Ch 4 - Transformations",
+    "section": "1.4 Transforming Proportions",
+    "text": "1.4 Transforming Proportions\nPower transformations usually don’t work for proportions, which are often bounded by 0 and 1\nThe logit transformation is common for proportions\n\nfunction my_logit(x)\n    log(x / (1 - x))\nend\n\nx = 0.01:0.02:0.99\n\n0.01:0.02:0.99\n\n\n\nscatter(eachindex(x), x)\n\n\n\n\n  \n    \n  \n\n\n\n  \n    \n  \n\n\n\n  \n    \n  \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nscatter!(eachindex(x), my_logit.(x))\n\n\n\n\n  \n    \n  \n\n\n\n  \n    \n  \n\n\n\n  \n    \n  \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThis transformation can help normalize proportion data.\nSince the logit transformation can’t be applied to values of exactly 0 or 1, so we need to clamp those proportions before transformation."
+  },
+  {
+    "objectID": "ch4_transformations.html#other-notes",
+    "href": "ch4_transformations.html#other-notes",
+    "title": "1  Ch 4 - Transformations",
+    "section": "1.5 Other Notes",
+    "text": "1.5 Other Notes\n\nPower transformations preserve the order of data only when all values are positive!\nlog(X) tends to correct negative skew; squaring tends to correct positive skew"
+  }
+]

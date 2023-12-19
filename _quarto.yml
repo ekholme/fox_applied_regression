@@ -1,0 +1,17 @@
+project:
+  type: book
+
+book:
+  title: "Applied Regression Analysis Notes"
+  author: "Eric Ekholm"
+  date: "11/6/2023"
+  chapters:
+    - index.qmd
+    - ch4_transformations.qmd
+
+format:
+  html:
+    theme: cosmo
+
+
+
